@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack'; // Importe o Stack
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur'; // import do BlurView
+import { StyleSheet } from 'react-native';
 import { supabase } from './src/lib/supabase';
 
 // telas
@@ -11,11 +13,9 @@ import HomeScreen from './src/screens/Home/HomeScreen';
 import SearchScreen from './src/screens/Search/SearchScreen';
 import MovieDetailScreen from './src/screens/MovieDetail/MovieDetailScreen';
 
-// Definição dos Navegadores
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-//criamso componentes para abas inferiores
 function TabRoutes() {
   return (
     <Tab.Navigator 
@@ -34,15 +34,26 @@ function TabRoutes() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         headerShown: false,
+        // estilizacao efeito glass
         tabBarStyle: { 
-          backgroundColor: '#000', 
-          borderTopColor: '#333',
+          position: 'absolute',
+          backgroundColor: 'transparent', 
+          borderTopWidth: 0,
+          elevation: 0,
           height: 80,
           paddingBottom: 20,
-          paddingTop: 10
+          paddingTop: 10,
         },
+        // componente de fundo que cria o desfoque
+        tabBarBackground: () => (
+          <BlurView 
+            tint="dark" // Pode ser 'light', 'dark' ou 'default'
+            intensity={50} //nivel de desfoque
+            style={StyleSheet.absoluteFill} 
+          />
+        ),
         tabBarActiveTintColor: '#fff',
-        tabBarInactiveTintColor: '#555',
+        tabBarInactiveTintColor: '#aaa',
       })}
     >
       <Tab.Screen name="Minhas listas" component={HomeScreen} />
@@ -53,7 +64,6 @@ function TabRoutes() {
   );
 }
 
-//o componente principal usa o stack para gerenciar as tabs e o detalhe
 export default function App() {
   const [session, setSession] = useState<any>(null);
 
@@ -74,10 +84,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* a tela principal contém o menu de abas */}
         <Stack.Screen name="Main" component={TabRoutes} />
-        
-        {/* a tela de detalhe fica no stack para cobrir o menu inferior */}
         <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
