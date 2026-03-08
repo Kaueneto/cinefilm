@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, Image, TouchableOpacity, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../api/tmdb';
 
@@ -12,8 +12,9 @@ export default function SearchScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
 
-  const handleSearch = async (text: string) => {
+  const handleSearch = async (text: string, selectedFilter?: FilterType) => {
     setQuery(text);
+    const usedFilter = selectedFilter ?? filter;
     if (text.length < 3) {
       setResults([]); // Limpa se apagar o texto
       return;
@@ -21,7 +22,7 @@ export default function SearchScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      const endpoint = filter === 'all' ? '/search/multi' : `/search/${filter}`;
+      const endpoint = usedFilter === 'all' ? '/search/multi' : `/search/${usedFilter}`;
       const response = await api.get(endpoint, {
         params: { query: text }
       });
@@ -37,24 +38,29 @@ export default function SearchScreen({ navigation }: any) {
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Pesquisar</Text>
 
-      <View style={styles.searchBar}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
+        <View style={styles.searchBar}>
         <TextInput 
           style={styles.input}
           placeholder="Busque por filmes ou séries"
           underlineColorAndroid="transparent"
           placeholderTextColor="#888"
           value={query}
-          onChangeText={handleSearch}
+          onChangeText={(t) => handleSearch(t)}
         />
         <Ionicons name="search" size={20} color="#888" />
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
 
       <View style={styles.filterContainer}>
-        {['all', 'movie', 'tv'].map((type) => (
+        {(['all', 'movie', 'tv'] as FilterType[]).map((type) => (
           <TouchableOpacity 
             key={type}
             style={[styles.filterBtn, filter === type && styles.filterBtnActive]}
-            onPress={() => setFilter(type as FilterType)}
+            onPress={() => {
+              setFilter(type);
+              if (query.length >= 3) handleSearch(query, type);
+            }}
           >
             <Text style={[styles.filterText, filter === type && styles.filterTextActive]}>
               {type === 'all' ? 'Todos' : type === 'movie' ? 'Filmes' : 'Séries'}
@@ -68,6 +74,7 @@ export default function SearchScreen({ navigation }: any) {
       ) : (
         <FlatList 
           data={results}
+          keyboardShouldPersistTaps="handled"
           keyExtractor={(item: any) => item.id.toString()}
           renderItem={({ item }) => (
             // 2. CORRIGIDO: Adicionado o onPress para navegar

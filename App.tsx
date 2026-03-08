@@ -1,3 +1,4 @@
+import DetailListScreen from './src/screens/DetailLists/DetailListScreen';
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -10,8 +11,10 @@ import { supabase } from './src/lib/supabase';
 // telas
 import AuthScreen from './src/screens/Auth/AuthScreen';
 import HomeScreen from './src/screens/Home/HomeScreen';
+import SorteiosScreen from './src/screens/Sorteios/SorteiosScreen';
 import SearchScreen from './src/screens/Search/SearchScreen';
 import MovieDetailScreen from './src/screens/MovieDetail/MovieDetailScreen';
+import RouletteScreen from './src/screens/Roulette/RouletteScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -57,7 +60,7 @@ function TabRoutes() {
       })}
     >
       <Tab.Screen name="Minhas listas" component={HomeScreen} />
-      <Tab.Screen name="Sorteios" component={HomeScreen} /> 
+      <Tab.Screen name="Sorteios" component={SorteiosScreen} />
       <Tab.Screen name="Pesquisar" component={SearchScreen} />
       <Tab.Screen name="Meu Perfil" component={HomeScreen} />
     </Tab.Navigator>
@@ -86,6 +89,8 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={TabRoutes} />
         <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
+        <Stack.Screen name="Roulette" component={RouletteScreen} />
+        <Stack.Screen name="DetailList" component={DetailListScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
